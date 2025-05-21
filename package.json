@@ -20,5 +20,8 @@
   "prettier": {
     "semi": false,
     "singleAttributePerLine": true
+  },
+  "devDependencies": {
+    "@types/katex": "^0.16.7"
   }
 }

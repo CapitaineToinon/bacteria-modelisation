@@ -1,24 +1,26 @@
 <script setup lang="ts">
-import type { Mode } from "./Plot.vue"
-import { useTemplateRef, onMounted, defineModel, watchEffect } from "vue"
+import type { Mode } from "./types"
+import { useTemplateRef, onMounted, watchEffect } from "vue"
 import katex from "katex"
 
-const model = defineModel()
-
-watchEffect(() => {
-  console.log(model.value)
-})
+const model = defineModel<Mode>()
+const props = defineProps<{ radius: number | string }>()
 
 const pa = useTemplateRef("pa")
 const pb = useTemplateRef("pb")
 
 onMounted(() => {
-  katex.render(String.raw`\rho_A(x) = \frac{1}{1 + d(x, C)}`, pa.value, {
+  katex.render(String.raw`\rho_A(x) = \frac{1}{1 + d(x, C)}`, pa.value!, {
     throwOnError: false,
   })
+})
+
+watchEffect(() => {
+  if (!pb.value) return
+
   katex.render(
-    String.raw`\rho_B(x) = \begin{cases} 1 & \text{if } d(x, C) > 15 \\ 0 & \text{otherwise} \end{cases}`,
-    pb.value,
+    String.raw`\rho_B(x) = \begin{cases} 1 & \text{if } d(x, C) > ${props.radius} \\ 0 & \text{otherwise} \end{cases}`,
+    pb.value!,
     { throwOnError: false },
   )
 })
@@ -26,7 +28,7 @@ onMounted(() => {
 
 <template>
   <fieldset
-    class="katex fieldset border rounded-box p-4 text-black -translate-y-4 -mb-4"
+    class="katex fieldset border p-4 text-black -translate-y-[17px] -mb-[17px]"
   >
     <legend class="fieldset-legend">Concentration</legend>
     <label class="label text-black mb-4">
@@ -42,7 +44,6 @@ onMounted(() => {
       <input
         v-model="model"
         type="radio"
-        checked="checked"
         value="B"
         class="radio radio-sm me-2"
       />

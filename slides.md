@@ -40,4 +40,4 @@ Presentation slides for developers
 
 ---
 
-<Plot />
+<BacteriaPlot />
