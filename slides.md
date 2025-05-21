@@ -13,6 +13,12 @@ drawings:
 transition: slide-left
 mdc: true
 colorSchema: light
+
+# HTML tag attributes
+htmlAttrs:
+  dir: ltr
+  lang: en
+  data-theme: light
 ---
 
 # Welcome to Slidev
