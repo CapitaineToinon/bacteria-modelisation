@@ -10,6 +10,7 @@
   "dependencies": {
     "@ameinhardt/unocss-preset-daisy": "^1.1.7",
     "@slidev/cli": "^51.7.1",
+    "@slidev/theme-apple-basic": "^0.25.1",
     "@slidev/theme-default": "latest",
     "@slidev/theme-seriph": "latest",
     "@vueuse/core": "^13.2.0",
