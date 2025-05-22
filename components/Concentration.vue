@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Mode } from "./types"
-import { useTemplateRef, onMounted, watchEffect } from "vue"
+import { useTemplateRef, watchEffect } from "vue"
 import katex from "katex"
 
 const model = defineModel<Mode>()
@@ -9,20 +9,17 @@ const props = defineProps<{ radius: number | string }>()
 const pa = useTemplateRef("pa")
 const pb = useTemplateRef("pb")
 
-onMounted(() => {
-  katex.render(String.raw`\rho_A(x) = \frac{1}{1 + d(x, C)}`, pa.value!, {
-    throwOnError: false,
-  })
-})
-
 watchEffect(() => {
-  if (!pb.value) return
+  if (pb.value) {
+    katex.render(
+      String.raw`\rho_B(x) = \begin{cases} 1 & \text{if } d(x, C) > ${props.radius} \\ 0 & \text{otherwise} \end{cases}`,
+      pb.value,
+    )
+  }
 
-  katex.render(
-    String.raw`\rho_B(x) = \begin{cases} 1 & \text{if } d(x, C) > ${props.radius} \\ 0 & \text{otherwise} \end{cases}`,
-    pb.value!,
-    { throwOnError: false },
-  )
+  if (pa.value) {
+    katex.render(String.raw`\rho_A(x) = \frac{1}{1 + d(x, C)}`, pa.value!)
+  }
 })
 </script>
 
@@ -51,9 +48,3 @@ watchEffect(() => {
     </label>
   </fieldset>
 </template>
-
-<style scoped>
-:deep(.katex) .katex-html {
-  display: none;
-}
-</style>

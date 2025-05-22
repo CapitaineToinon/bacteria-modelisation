@@ -52,7 +52,7 @@ level: 2
 ## What Are Multi-Agent Systems (MAS)?
 
 - A collection of <span v-mark.highlight.red="1">automonous</span>, <span v-mark.highlight.red="1">interacting</span> agents placed in a shared environment.
-- Each agent <span v-mark.highlight.yellow="2">perceive</span>, <span v-mark.highlight.yellow="2">reason</span>, <span v-mark.highlight.yellow="2">act</span>, and sometimes <span v-mark.udnerline.yellow="3">communicate</span> with others.
+- Each agent <span v-mark.highlight.yellow="2">perceive</span>, <span v-mark.highlight.yellow="2">reason</span>, <span v-mark.highlight.yellow="2">act</span>, and sometimes <span v-mark.underline.yellow="3">communicate</span> with others.
 - Emergent behavior exhibition from local interactions.
 
 ## Why Are MAS Important?

@@ -112,7 +112,7 @@ onMounted(() => {
   id = setInterval(() => {
     const delta = refresh.value / MAX_REFRESH
     animate(delta)
-  }, 1000 / refresh.value)
+  }, 1000 / MAX_REFRESH)
 
   updateBacteria()
 })
