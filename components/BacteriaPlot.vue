@@ -1,19 +1,31 @@
 <script setup lang="ts">
-import type { Mode, Bacteria } from "./types"
+import { onSlideLeave } from "@slidev/client"
+import { useDraggable } from "@vueuse/core"
 import {
-  computed,
+  CategoryScale,
+  ChartData,
+  Chart as ChartJS,
+  ChartOptions,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Title,
+} from "chart.js"
+import {
   onMounted,
   onUnmounted,
   ref,
   shallowRef,
   useTemplateRef,
-  watch,
+  watch
 } from "vue"
-import { useDraggable } from "@vueuse/core"
-import { getRho } from "./rho"
-import { useMouse } from "./use-mouse"
-import { onSlideLeave } from "@slidev/client"
+import { Line } from "vue-chartjs"
 import { mod } from "./mod"
+import { getRho } from "./rho"
+import type { Bacteria, Mode } from "./types"
+import { useMouse } from "./use-mouse"
+
+ChartJS.register(Title, LineElement, PointElement, CategoryScale, LinearScale)
 
 // constants
 const MAX_REFRESH = 30
@@ -27,6 +39,8 @@ const refresh = ref(30)
 const radius = ref(50)
 const mode = ref<Mode>("B")
 const isPlaying = ref(false)
+const insideHistory = ref<number[]>(Array(100).fill(0))
+const historyTime = ref<number[]>(Array(100).fill(0))
 
 const svg = useTemplateRef("svg")
 const el = useTemplateRef("el")
@@ -60,6 +74,15 @@ function randomBacterias(n: number): Bacteria[] {
     )
     return [x, y, direction, rho]
   })
+}
+
+function insideCirclePercentage(): number {
+  const inside = population.value.filter(([x, y]) => {
+    const dx = x - centerx.value
+    const dy = y - centery.value
+    return Math.sqrt(dx * dx + dy * dy) <= radius.value
+  })
+  return (inside.length / population.value.length) * 100
 }
 
 // Main animation loop that updates the position of the bacteria
@@ -101,6 +124,12 @@ function updateBacteria() {
 
       return [x, y, direction, next_rho]
     })
+    insideHistory.value.push(insideCirclePercentage())
+    historyTime.value.push(historyTime.value[historyTime.value.length - 1] + (1000 / refresh.value))
+    if (insideHistory.value.length > 100) {
+      insideHistory.value.shift()
+      historyTime.value.shift()
+    }
   }
 
   setTimeout(updateBacteria, 1000 / refresh.value)
@@ -148,7 +177,66 @@ function reset() {
   speed.value = 20
   refresh.value = MAX_REFRESH
   population.value = randomBacterias(n.value)
+
+  insideHistory.value = Array(100).fill(0)
+  historyTime.value = Array(100).fill(0)
 }
+
+const chartOptions = ref<ChartOptions<"line">>({
+  responsive: true,
+  devicePixelRatio: 4,
+  scales: {
+    y: {
+      min: 0,
+      max: 100,
+      title: {
+        display: true,
+        text: "Inside circle (%)",
+      },
+    },
+    x: {
+      title: {
+        display: true,
+        text: "Time (s)",
+      },
+    },
+  },
+})
+const chartStyle = ref({
+  height: `${height / 2}px`,
+  width: `${width}px`,
+  position: "relative",
+})
+const chartData = ref<ChartData<"line">>({
+  labels: [],
+  datasets: [
+    {
+      label: "Inside circle (%)",
+      data: [],
+      fill: false,
+      borderColor: "#f87171",
+      tension: 0.1,
+      pointRadius: 0,
+    },
+  ],
+})
+
+watch(
+  insideHistory,
+  (newVal) => {
+    chartData.value = {
+      ...chartData.value,
+      labels: historyTime.value.map((t) => (t / 1000).toFixed(2)),
+      datasets: [
+        {
+          ...chartData.value.datasets[0],
+          data: [...newVal],
+        },
+      ],
+    }
+  },
+  { deep: true },
+)
 </script>
 
 <template>
@@ -157,40 +245,51 @@ function reset() {
       class="flex-grow"
       ref="svg"
     >
-      <svg
-        ref="svg"
-        xmlns="http://www.w3.org/2000/svg"
-        :viewBox="`0 0 ${width} ${height}`"
-        :width="width"
-        :height="height"
-        class="border border-black"
-      >
-        <circle
-          v-for="([x, y], index) in population"
-          :key="index"
-          :cx="x"
-          :cy="y"
-          r="1"
-          stroke="black"
-          stroke-width="2"
-          class="pointer-events-none"
-        />
-        <circle
-          ref="el"
-          key="center"
-          :cx="centerx"
-          :cy="centery"
-          :r="radius"
-          stroke="red"
-          stroke-width="5"
-          stroke-opacity="1"
-          fill="transparent"
-          :class="{
-            'cursor-grabbing': isDragging,
-            'cursor-grab': !isDragging,
-          }"
-        />
-      </svg>
+      <div class="flex flex-col items-center">
+        <svg
+          ref="svg"
+          xmlns="http://www.w3.org/2000/svg"
+          :viewBox="`0 0 ${width} ${height}`"
+          :width="width"
+          :height="height / 2"
+          class="border border-black w-1/2"
+        >
+          <circle
+            v-for="([x, y], index) in population"
+            :key="index"
+            :cx="x"
+            :cy="y"
+            r="1"
+            stroke="black"
+            stroke-width="2"
+            class="pointer-events-none"
+          />
+          <circle
+            ref="el"
+            key="center"
+            :cx="centerx"
+            :cy="centery"
+            :r="radius"
+            stroke="red"
+            stroke-width="5"
+            stroke-opacity="1"
+            fill="transparent"
+            :class="{
+              'cursor-grabbing': isDragging,
+              'cursor-grab': !isDragging,
+            }"
+          />
+        </svg>
+        <div>
+          <Line
+            id="my-chart-id"
+            ref="chartRef"
+            :options="chartOptions"
+            :data="chartData"
+            :style="chartStyle"
+          />
+        </div>
+      </div>
     </div>
     <div class="flex flex-col gap-2 w-full max-w-220px">
       <Concentration
