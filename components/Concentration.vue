@@ -25,26 +25,16 @@ watchEffect(() => {
 
 <template>
   <fieldset
-    class="katex fieldset border p-4 text-black -translate-y-[17px] -mb-[17px]"
+    class="katex flex flex-col border p-4 -translate-y-[12px] -mb-[17px]"
   >
     <legend class="fieldset-legend">Concentration</legend>
-    <label class="label text-black mb-4">
-      <input
-        v-model="model"
-        type="radio"
-        value="A"
-        class="radio radio-sm mr-2"
-      />
-      <span ref="pa" />
+    <label class="text-sm font-medium text-gray-900 flex items-center mb-4 gap-2">
+      <input v-model="model" type="radio" value="A" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300">
+      <div ref="pa"></div>
     </label>
-    <label class="label text-black">
-      <input
-        v-model="model"
-        type="radio"
-        value="B"
-        class="radio radio-sm me-2"
-      />
-      <span ref="pb" />
+    <label class="text-sm font-medium text-gray-900 flex items-center mb-4 gap-2">
+      <input v-model="model" type="radio" value="B" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300">
+      <div ref="pb" class="text-xs"></div>
     </label>
   </fieldset>
 </template>

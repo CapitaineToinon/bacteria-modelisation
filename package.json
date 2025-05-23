@@ -8,19 +8,15 @@
     "export": "slidev export"
   },
   "dependencies": {
-    "@ameinhardt/unocss-preset-daisy": "^1.1.7",
     "@slidev/cli": "^51.7.1",
     "@slidev/theme-apple-basic": "^0.25.1",
     "@slidev/theme-default": "latest",
     "@slidev/theme-seriph": "latest",
     "@vueuse/core": "^13.2.0",
-    "apexcharts": "^4.7.0",
     "chart.js": "^4.4.9",
-    "daisyui": "^5.0.35",
     "katex": "^0.16.22",
     "vue": "^3.5.14",
-    "vue-chartjs": "^5.3.2",
-    "vue3-apexcharts": "^1.8.0"
+    "vue-chartjs": "^5.3.2"
   },
   "prettier": {
     "semi": false,

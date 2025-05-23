@@ -29,8 +29,9 @@ ChartJS.register(Title, LineElement, PointElement, CategoryScale, LinearScale)
 
 // constants
 const MAX_REFRESH = 30
-const width = 628
-const height = 472
+const width = 600
+const height = 236
+const MAX_HISTORY_LENGTH = 100
 
 // stuff that change in the UI
 const n = ref(100)
@@ -39,8 +40,8 @@ const refresh = ref(30)
 const radius = ref(50)
 const mode = ref<Mode>("B")
 const isPlaying = ref(false)
-const insideHistory = ref<number[]>(Array(100).fill(0))
-const historyTime = ref<number[]>(Array(100).fill(0))
+const insideHistory = ref<number[]>(Array(MAX_HISTORY_LENGTH).fill(0))
+const historyTime = ref<number[]>(Array(MAX_HISTORY_LENGTH).fill(0))
 
 const svg = useTemplateRef("svg")
 const el = useTemplateRef("el")
@@ -126,7 +127,7 @@ function updateBacteria() {
     })
     insideHistory.value.push(insideCirclePercentage())
     historyTime.value.push(historyTime.value[historyTime.value.length - 1] + (1000 / refresh.value))
-    if (insideHistory.value.length > 100) {
+    if (insideHistory.value.length > MAX_HISTORY_LENGTH) {
       insideHistory.value.shift()
       historyTime.value.shift()
     }
@@ -178,12 +179,13 @@ function reset() {
   refresh.value = MAX_REFRESH
   population.value = randomBacterias(n.value)
 
-  insideHistory.value = Array(100).fill(0)
-  historyTime.value = Array(100).fill(0)
+  insideHistory.value = Array(MAX_HISTORY_LENGTH).fill(0)
+  historyTime.value = Array(MAX_HISTORY_LENGTH).fill(0)
 }
 
 const chartOptions = ref<ChartOptions<"line">>({
   responsive: true,
+  animation: false,
   devicePixelRatio: 4,
   scales: {
     y: {
@@ -203,7 +205,7 @@ const chartOptions = ref<ChartOptions<"line">>({
   },
 })
 const chartStyle = ref({
-  height: `${height / 2}px`,
+  height: `${height}px`,
   width: `${width}px`,
   position: "relative",
 })
@@ -215,7 +217,6 @@ const chartData = ref<ChartData<"line">>({
       data: [],
       fill: false,
       borderColor: "#f87171",
-      tension: 0.1,
       pointRadius: 0,
     },
   ],
@@ -245,14 +246,14 @@ watch(
       class="flex-grow"
       ref="svg"
     >
-      <div class="flex flex-col items-center">
+      <div class="flex flex-col items-center gap-4">
         <svg
           ref="svg"
           xmlns="http://www.w3.org/2000/svg"
           :viewBox="`0 0 ${width} ${height}`"
           :width="width"
-          :height="height / 2"
-          class="border border-black w-1/2"
+          :height="height"
+          class="border border-black"
         >
           <circle
             v-for="([x, y], index) in population"
@@ -291,7 +292,7 @@ watch(
         </div>
       </div>
     </div>
-    <div class="flex flex-col gap-2 w-full max-w-220px">
+    <div class="flex flex-col gap-2 w-full max-w-300px">
       <Concentration
         v-model="mode"
         :radius
@@ -300,7 +301,7 @@ watch(
         <legend class="fieldset-legend">Number of bacteria</legend>
         <input
           v-model="n"
-          class="range range-sm"
+          class="w-full h-2 mb-6 bg-gray-200 rounded-lg cursor-pointer"
           type="range"
           min="1"
           max="2000"
@@ -310,7 +311,7 @@ watch(
         <legend class="fieldset-legend">Center radius</legend>
         <input
           v-model="radius"
-          class="range range-sm"
+          class="w-full h-2 mb-6 bg-gray-200 rounded-lg cursor-pointer"
           type="range"
           min="1"
           max="100"
@@ -320,7 +321,7 @@ watch(
         <legend class="fieldset-legend">Animation speed</legend>
         <input
           v-model="refresh"
-          class="range range-sm"
+          class="w-full h-2 mb-6 bg-gray-200 rounded-lg cursor-pointer"
           type="range"
           min="1"
           :max="MAX_REFRESH"
@@ -328,7 +329,7 @@ watch(
       </fieldset>
       <div class="mt-auto w-full grid grid-cols-2 gap-2">
         <button
-          class="btn btn-outline"
+          class="border border-black rounded-lg py-2"
           @click="isPlaying = !isPlaying"
         >
           <carbon:pause v-if="isPlaying" />
@@ -337,7 +338,7 @@ watch(
           <span v-else>Play</span>
         </button>
         <button
-          class="btn btn-outline mt-auto"
+          class="border border-black rounded-lg py-2"
           @click="reset"
         >
           <carbon:reset />
