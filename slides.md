@@ -119,7 +119,7 @@ transition: slide-left
 
 At each discrete time step $t$, the system evolves as:
 
-$$ {hide|1|2|3|all}
+$$ {all|1|2|3}
 \begin{aligned}
 \pi^t_i &= P_i(E^t) \\
 \alpha_i^t &= \delta_i(s_i^t, \pi^t_i, I),\ \text{where} \ s^t_i \in S_i\\
@@ -242,38 +242,58 @@ def compute_rho_A(position):
 
 ````md magic-move
 ```py
+# Initialize the environment parameters
 T = 100, n = 100, time_step = 0.1, speed = 20, size = 400
 ```
-```py {3}
+```py {3-4}
 T = 100, n = 100, time_step = 0.1, speed = 20, size = 400
 
-population = init_population(n)
+# Initialize the population randomly
+population = init_population(n, size)
 ```
-```py {5-7}
+```py {5-8}
 T = 100, n = 100, time_step = 0.1, speed = 20, size = 400
 
-population = init_population(n)
+population = init_population(n, size)
 
 for t in range(T):
     for i in range(n):
+        # For each agent at time t
         x, y, direction, rho = population[i]
 ```
 ```py {9-10}
 T = 100, n = 100, time_step = 0.1, speed = 20, size = 400
 
-population = init_population(n)
+population = init_population(n, size)
+
+for t in range(T):
+    for i in range(n):
+        x, y, direction, rho = population[i]
+
+        # Compute the concentration function, A or B
+        next_rho = compute_rho((x, y))
+```
+```py {11-15}
+T = 100, n = 100, time_step = 0.1, speed = 20, size = 400
+
+population = init_population(n, size)
 
 for t in range(T):
     for i in range(n):
         x, y, direction, rho = population[i]
 
         next_rho = compute_rho((x, y))
+
+        # Decide to change direction based on the concentration function
+        # given a probability. Adds stochasticity to the model.
         probability = 0.9 if next_rho < rho else 0.5
+        if random() < probability:
+            direction = random(0, 2 * math.pi)
 ```
-```py {12-13}
+```py {15-18}
 T = 100, n = 100, time_step = 0.1, speed = 20, size = 400
 
-population = init_population(n)
+population = init_population(n, size)
 
 for t in range(T):
     for i in range(n):
@@ -285,11 +305,15 @@ for t in range(T):
         if random() < probability:
             direction = random(0, 2 * math.pi)
 
+        # Update the position of the agent and apply
+        # periodic boundary conditions
+        x = (x + cos(direction) * speed * time_step) % size
+        y = (y + sin(direction) * speed * time_step) % size
 ```
-```py {15-16}
+```py {18-19}
 T = 100, n = 100, time_step = 0.1, speed = 20, size = 400
 
-population = init_population(n)
+population = init_population(n, size)
 
 for t in range(T):
     for i in range(n):
@@ -303,31 +327,14 @@ for t in range(T):
 
         x = (x + cos(direction) * speed * time_step) % size
         y = (y + sin(direction) * speed * time_step) % size
-```
-```py {18}
-T = 100, n = 100, time_step = 0.1, speed = 20, size = 400
 
-population = init_population(n)
-
-for t in range(T):
-    for i in range(n):
-        x, y, direction, rho = population[i]
-
-        next_rho = compute_rho((x, y))
-        probability = 0.9 if next_rho < rho else 0.5
-
-        if random() < probability:
-            direction = random(0, 2 * math.pi)
-
-        x = (x + cos(direction) * speed * time_step) % size
-        y = (y + sin(direction) * speed * time_step) % size
-
+        # Update the population
         population[i] = (x, y, direction, next_rho)
 ```
 ```py 
 T = 100, n = 100, time_step = 0.1, speed = 20, size = 400
 
-population = init_population(n)
+population = init_population(n, size)
 
 for t in range(T):
     for i in range(n):
@@ -363,7 +370,6 @@ routeAlias: simulation
 <BacteriaPlot />
 
 ---
----
 
 # Limitations
 
@@ -381,7 +387,7 @@ routeAlias: simulation
 
 <v-clicks>
 
-- Better boundery conditions
+- Better boundary conditions
 - Depleating food source
 - More realistic interactions between agents
 - Life cycle of agents
