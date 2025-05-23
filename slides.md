@@ -102,7 +102,7 @@ transition: slide-left
 
 At each discrete time step $t$, the system evolves as:
 
-$$ {all|1|2|3}
+$$ {hide|1|2|3|all}
 \begin{aligned}
 \pi^t_i &= P_i(E^t) \\
 \alpha_i^t &= \delta_i(s_i^t, \pi^t_i, I),\ \text{where} \ s^t_i \in S_i\\
@@ -120,7 +120,7 @@ transition: slide-left
 
 # Abstract Modeling
 
-<img class="mx-auto mt-10" width="80%" src="./images/abstract.jpg" alt="" />
+<img class="mx-auto mt-10" width="80%" src="./images/abstract-easy.jpg" alt="" />
 
 ---
 transition: fade-out
