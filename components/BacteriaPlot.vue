@@ -17,7 +17,7 @@ import {
   ref,
   shallowRef,
   useTemplateRef,
-  watch
+  watch,
 } from "vue"
 import { Line } from "vue-chartjs"
 import { mod } from "./mod"
@@ -126,7 +126,9 @@ function updateBacteria() {
       return [x, y, direction, next_rho]
     })
     insideHistory.value.push(insideCirclePercentage())
-    historyTime.value.push(historyTime.value[historyTime.value.length - 1] + (1000 / refresh.value))
+    historyTime.value.push(
+      historyTime.value[historyTime.value.length - 1] + 1000 / refresh.value,
+    )
     if (insideHistory.value.length > MAX_HISTORY_LENGTH) {
       insideHistory.value.shift()
       historyTime.value.shift()
@@ -242,10 +244,7 @@ watch(
 
 <template>
   <div class="flex h-full gap-5">
-    <div
-      class="flex-grow"
-      ref="svg"
-    >
+    <div class="flex-grow">
       <div class="flex flex-col items-center gap-4">
         <svg
           ref="svg"
@@ -295,6 +294,7 @@ watch(
     <div class="flex flex-col gap-2 w-full max-w-300px">
       <Concentration
         v-model="mode"
+        class="mb-1"
         :radius
       />
       <fieldset class="fieldset">
